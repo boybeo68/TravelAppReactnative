@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { Text, View, StyleSheet, Image ,Platform} from 'react-native';
-import { Constants, Location, Permissions } from 'expo';
+import {Text, View, StyleSheet, Image, Platform} from 'react-native';
+import {Constants, Location, Permissions} from 'expo';
+import {fetWeatherLatLong} from '../utils/api'
 
 export default class SlashScreen extends React.Component {
     constructor(props) {
@@ -8,12 +9,9 @@ export default class SlashScreen extends React.Component {
         this.state = {
             location: null,
             errorMessage: null,
-            timer: 1
         };
-        setInterval(() =>{
-            this.setState({timer: (this.state.timer +1)})
-        },1000)
     }
+
     componentWillMount() {
         if (Platform.OS === 'android' && !Constants.isDevice) {
             this.setState({
@@ -23,36 +21,44 @@ export default class SlashScreen extends React.Component {
             this._getLocationAsync();
         }
     }
+
     _getLocationAsync = async () => {
-        let { status } = await Permissions.askAsync(Permissions.LOCATION);
+        let {status} = await Permissions.askAsync(Permissions.LOCATION);
         if (status !== 'granted') {
             this.setState({
                 errorMessage: 'Permission to access location was denied',
             });
         }
-
         let location = await Location.getCurrentPositionAsync({});
-        this.setState({ location });
+        console.log(JSON.stringify(location));
+        let dataLocation = {
+            lat: location.coords.latitude,
+            lon: location.coords.longitude
+        };
+        this.props.navigation.navigate('LoginScreen', dataLocation);
     };
-    render() {
-        // return (
-        //     <View style={styles.container}>
-        //         <Text style={styles.paragraph}>{`Welcome to myApp: ${this.state.timer}`}</Text>
-        //     </View>
-        // );
-        let text = 'Waiting..';
-        if (this.state.errorMessage) {
-            text = this.state.errorMessage;
-        } else if (this.state.location) {
-            text = JSON.stringify(this.state.location);
-            console.log(text)
-        }
 
+    render() {
         return (
             <View style={styles.container}>
-                <Text style={styles.paragraph}>{text}</Text>
+                <Image style={styles.logo}
+                       source={require('../images/logo.png')}>
+                </Image>
             </View>
         );
+        // let text = 'Waiting..';
+        // if (this.state.errorMessage) {
+        //     text = this.state.errorMessage;
+        // } else if (this.state.location) {
+        //     text = JSON.stringify(this.state.location);
+        //     console.log(text)
+        // }
+        //
+        // return (
+        //     <View style={styles.container}>
+        //         <Text style={styles.paragraph}>{text}</Text>
+        //     </View>
+        // );
     }
 }
 
@@ -61,8 +67,7 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        paddingTop: Constants.statusBarHeight,
-        backgroundColor: '#ecf0f1',
+        backgroundColor: 'rgb(32, 53, 70)',
     },
     paragraph: {
         margin: 24,

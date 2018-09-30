@@ -1,34 +1,32 @@
-import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, {Component} from 'react';
+import {StyleSheet, Text, View, Dimensions } from 'react-native';
 import LoginScreen from './components/LoginScreen'
 import SlashScreen from './components/SlashScreen'
-import * as firebase from 'firebase';
+import HomeScreen from './components/HomeScreen';
+import {createStackNavigator} from 'react-navigation'
 
-//  class Main extends React.Component {
-//   constructor(props) {
-//       super(props);
-//       this.state={
-//         currentScreen: 'SlashScreen'
-//       };
-//       setTimeout(() => {
-//           this.setState({currentScreen : 'Login'})
-//       },2000)
-//   }
-//     render() {
-//         const {currentScreen} = this.state;
-//         let Main = currentScreen === 'SlashScreen' ? <SlashScreen/> : <LoginScreen/>;
-//         return (
-//            Main
-//         );
-//     }
-// }
-//
-
+const AppNavigation = createStackNavigator({
+    SlashScreen: {
+        screen: SlashScreen,
+        navigationOptions : { header: null }
+    },
+    LoginScreen: {
+        screen: LoginScreen,
+        navigationOptions : { header: null }
+    },
+    HomeScreen: {
+        screen: HomeScreen,
+        navigationOptions:{
+            header: null
+        }
+    },
+});
 export default class App extends React.Component {
-  render() {
-    return (
-     //<Main/>
-        <LoginScreen/>
-    );
-  }
+    render() {
+        return (
+            //<Main/>
+            //<LoginScreen/>
+            <AppNavigation/>
+        );
+    }
 }

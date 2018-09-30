@@ -1,12 +1,14 @@
 import * as React from 'react';
+import {Component} from 'react'
 import {
     StyleSheet, Text, View, Image,
     TouchableWithoutFeedback, StatusBar,
     TextInput, SafeAreaView, Keyboard, TouchableOpacity, Alert,
-    KeyboardAvoidingView
+    KeyboardAvoidingView, Dimensions
 } from 'react-native'
 import * as firebase from "firebase";
 import Expo from 'expo';
+import Modal from 'react-native-modalbox';
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -20,24 +22,17 @@ const firebaseConfig = {
 if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
 }
-export default class LoginScreen extends React.Component {
+var screen = Dimensions.get('window');
+
+class CreateAcout extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            email: '',
-            pass: ''
-        };
+        this.state = {};
     }
 
-    componentDidMount() {
-
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user != null) {
-                //console.log(user)
-            }
-        })
-    }
-
+    showCreateAccout = () => {
+        this.refs.MyModal.open();
+    };
     onSingUp = (email, pass) => {
         try {
             if (pass.length < 6) {
@@ -53,7 +48,78 @@ export default class LoginScreen extends React.Component {
         }
     };
 
-    async onSignFb() {
+    render() {
+        return (
+            <Modal ref={'MyModal'} style={{
+                justifyContent: 'center',
+                borderRadius: 20,
+                width: screen - 80,
+                height: 280,
+                backgroundColor: 'rgb(32, 53, 70)'
+            }}
+                   postion='center' backdrop={true} onClose={() => alert('Modal close')}>
+                <View style={styles.infoContainer}>
+                    <TextInput style={[styles.input, {
+                        backgroundColor: '#464a6b',
+                        color: '#FFF',
+                    }]}
+                               placeholder="Enter username/email"
+                               placeholderTextColor='white'
+                               keyboardType='email-address'
+                               returnKeyType='next'
+                               autoCorrect={false}
+                               underlineColorAndroid="transparent"
+                               onChangeText={(email) => this.setState({email})}
+                    />
+                    <TextInput style={[styles.input, {
+                        backgroundColor: '#464a6b',
+                        color: '#FFF',
+                    }]}
+                               placeholder="Enter password"
+                               placeholderTextColor='white'
+                               secureTextEntry={true}
+                               returnKeyType='go'
+                               autoCorrect={false}
+                               underlineColorAndroid="transparent"
+                               ref={"txtPassword"}
+                               onChangeText={(pass) => this.setState({pass})}
+                    />
+                    <TouchableOpacity style={styles.buttonContainer} onPress={() => {
+                        this.onSingUp(this.state.email, this.state.pass)
+                    }}>
+                        <Text style={styles.buttonText}>Create account with email</Text>
+                    </TouchableOpacity>
+                </View>
+            </Modal>
+        );
+    }
+}
+
+export default class LoginScreen extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            email: '',
+            pass: ''
+        };
+        this.onShowCreateAccount = this.onShowCreateAccount.bind(this);
+    }
+
+    componentDidMount() {
+
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user != null) {
+                //console.log(user)
+            }
+        })
+    }
+
+    onShowCreateAccount = () => {
+        this.refs.creatAccount.showCreateAccout();
+    };
+
+
+    async onSignFb(navigation) {
         const {type, token} = await Expo.Facebook.logInWithReadPermissionsAsync('260015801320288', {
             permissions: ["email", "public_profile", "user_friends"],
         });
@@ -63,36 +129,40 @@ export default class LoginScreen extends React.Component {
             firebase.auth().signInAndRetrieveDataWithCredential(credential)
                 .then(function (userCredential) {
                     console.log(userCredential.additionalUserInfo);
+                    //todo send location go to homeScreen
+                    navigation.navigate('HomeScreen',navigation.state.params);
                 });
         }
     }
 
-    signInGoogle = async () => {
+    signInGoogle = async (navigation) => {
         try {
             const result = await Expo.Google.logInAsync({
                 androidClientId: '344842523937-fl2jonaaide98d550u1tvvghg41h8716.apps.googleusercontent.com',
                 scopes: ['profile', 'email'],
             });
             if (result.type === 'success') {
-                console.log(result) ;
+                console.log(result);
                 const credential = firebase.auth.GoogleAuthProvider.credential(result.idToken);
                 console.log(credential);
 
                 firebase.auth().signInAndRetrieveDataWithCredential(credential)
                     .then(function (userCredential) {
                         console.log(userCredential);
+                        navigation.navigate('HomeScreen',navigation.state.params);
                     });
             } else {
                 console.log('cancel ')
             }
-        } catch(e) {
+        } catch (e) {
             console.log('Errrrrrr')
         }
     };
 
-    onSingIn = (email, pass) => {
+    onSingIn = (email, pass, navigation) => {
         firebase.auth().signInWithEmailAndPassword(email, pass).then((user) => {
             console.log(user);
+           navigation.navigate('HomeScreen',navigation.state.params);
         }).catch(function (error) {
             // Handle Errors here.
             var errorCode = error.code;
@@ -103,6 +173,7 @@ export default class LoginScreen extends React.Component {
     };
 
     render() {
+        const {navigation} = this.props;
         return (
             <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgb(32, 53, 70)'}}>
                 <KeyboardAvoidingView behavior='padding'>
@@ -136,19 +207,19 @@ export default class LoginScreen extends React.Component {
                                            onChangeText={(pass) => this.setState({pass})}
                                 />
                                 <TouchableOpacity style={styles.buttonContainer} onPress={() => {
-                                    this.onSingIn(this.state.email, this.state.pass)
+                                    this.onSingIn(this.state.email, this.state.pass, navigation)
                                 }}>
                                     <Text style={styles.buttonText}>Sign in with email</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={[styles.buttonContainer, {backgroundColor: 'red'}]}
+                                <TouchableOpacity style={[styles.buttonContainer, {backgroundColor: '#DD4B39'}]}
                                                   onPress={() => {
-                                                      this.signInGoogle()
+                                                      this.signInGoogle(navigation)
                                                   }}>
                                     <Text style={[styles.buttonText, {color: 'white'}]}>Sign up with google</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={[styles.buttonContainer, {backgroundColor: 'blue'}]}
+                                <TouchableOpacity style={[styles.buttonContainer, {backgroundColor: '#3B5998'}]}
                                                   onPress={() => {
-                                                      this.onSignFb()
+                                                      this.onSignFb(navigation)
                                                   }}>
                                     <Text style={[styles.buttonText, {color: 'white'}]}>Sign in with FaceBook</Text>
                                 </TouchableOpacity>
@@ -156,9 +227,11 @@ export default class LoginScreen extends React.Component {
                         </View>
                     </View>
                 </KeyboardAvoidingView>
-                <Text style={{marginTop: 10, color: '#fff', textDecorationLine: 'underline'}} onPress={() => {
-                    this.onSingUp(this.state.email, this.state.pass)
+                <Text style={{marginTop: 30, color: '#fff', textDecorationLine: 'underline'}} onPress={() => {
+                    // this.onSingUp(this.state.email, this.state.pass)
+                    this.onShowCreateAccount()
                 }}>You do not have an account</Text>
+                <CreateAcout ref={'creatAccount'}/>
             </View>
         );
     }
@@ -172,7 +245,7 @@ const styles = StyleSheet.create({
     },
     logo: {
         justifyContent: 'center',
-        width: 128,
+        width: 200,
         height: 56,
         marginBottom: 20
     },
@@ -197,8 +270,10 @@ const styles = StyleSheet.create({
     buttonContainer: {
         marginTop: 10,
         backgroundColor: '#f7c744',
-        paddingHorizontal: 55,
-        paddingVertical: 10,
+        width: 250,
+        height: 50,
+        alignItems: 'center',
+        justifyContent: 'center',
         borderRadius: 5
     },
     buttonText: {
