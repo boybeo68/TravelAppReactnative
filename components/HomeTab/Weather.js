@@ -14,8 +14,11 @@ import getIImagesWeather from '../../utils/getIImagesWeather'
 //todo lấy dữ liệu từ api
 import {fetchLocationId} from "../../utils/api";
 import {fetchWeather} from "../../utils/api";
+import {fetWeatherLatLong} from "../../utils/api";
+import {fetWeatherAddress} from "../../utils/api";
 import HeaderComponent from '../HeaderComponent'
 import {Icon} from 'native-base'
+import {Constants, Location, Permissions} from "expo";
 
 // import styles from './styles';
 const backgroundColor = '#0067a7';
@@ -35,27 +38,67 @@ export default class Weather extends Component {
             loading: false,
             error: false,
             temperature: 0,
-            weather: ''
+            weather: '',
+            errorMessage: null,
         };
     }
 
     componentDidMount() {
-        this.setState({weather: 'Clear', location: 'Hà Nội'}, () => console.log(this.state.weather));
+        if (Platform.OS === 'android' && !Constants.isDevice) {
+            this.setState({
+                errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
+            });
+        } else {
+            this._getLocationAsync();
+        }
     }
+
+    _getLocationAsync = async () => {
+        let {status} = await Permissions.askAsync(Permissions.LOCATION);
+        if (status !== 'granted') {
+            this.setState({
+                errorMessage: 'Permission to access location was denied',
+            });
+        }
+        this.setState({loading: true}, async () => {
+            try {
+                let location = await Location.getCurrentPositionAsync({});
+                const {weather, temp, nameLocation} = await fetWeatherLatLong(location.coords.latitude, location.coords.longitude);
+                this.setState({
+                    weather: weather,
+                    location: nameLocation,
+                    temperature: temp,
+                    loading: false,
+                    error: false
+                }, () => console.log(this.state.weather));
+            } catch (e) {
+                console.log(this.state.error);
+                this.setState({loading: false, error: true})
+            }
+        });
+    };
 
     handleUpdateLocation = async city => {
         if (!city) return;
         this.setState({loading: true}, async () => {
             try {
-                const locationId = await fetchLocationId(city);
-                const {location, weather, temperature} = await fetchWeather(locationId);
-
+                // const locationId = await fetchLocationId(city);
+                // const {location, weather, temperature} = await fetchWeather(locationId);
+                // this.setState({
+                //     location,
+                //     weather,
+                //     temperature,
+                //     loading: false,
+                //     error: false
+                // })
+                const dataWeather = await fetWeatherAddress(city);
+                console.log(dataWeather);
                 this.setState({
-                    location,
-                    weather,
-                    temperature,
-                    loading: false,
-                    error: false
+                    location:dataWeather.nameLocation,
+                        weather:dataWeather.weather,
+                        temperature:dataWeather.temp,
+                        loading: false,
+                        error: false
                 })
             } catch (e) {
                 console.log(this.state.error);
@@ -64,6 +107,7 @@ export default class Weather extends Component {
         });
 
     };
+
     render() {
         const {location, temperature, weather, loading, error} = this.state;
         return (
@@ -91,7 +135,8 @@ export default class Weather extends Component {
                                         <View style={{alignItems: 'center', justifyContent: 'center'}}>
                                             <Text style={[styles.textLarge, styles.textStyle]}>{location}</Text>
                                             <Text style={[styles.textSmall, styles.textStyle]}>{weather}</Text>
-                                            <Text style={[styles.textLarge, styles.textStyle]}>{`${Math.round(temperature)}°C`}</Text>
+                                            <Text
+                                                style={[styles.textLarge, styles.textStyle]}>{`${Math.round(temperature)}°C`}</Text>
                                         </View>
                                     )}
                                     <SearchInput placeholder='Search any city '

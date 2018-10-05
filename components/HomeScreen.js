@@ -5,6 +5,8 @@ import Info from './HomeTab/Info';
 import Setting from './HomeTab/Setting';
 import Weather from './HomeTab/Weather';
 import Home from './HomeTab/Home'
+import AppLearnWord from './HomeTab/AppLearnWord'
+import AppCount from './HomeTab/AppCount'
 
 // import styles from './styles';
 var {height, width} = Dimensions.get('window');
@@ -15,6 +17,12 @@ let routeConfigs = {
     Weather: {
         screen: Weather,
     },
+    AppLearnWord: {
+        screen: AppLearnWord,
+    },
+    AppCount: {
+        screen: AppCount,
+    },
     Info: {
         screen: Info,
     },
@@ -23,7 +31,7 @@ let routeConfigs = {
     },
 };
 let drawerNavigatorConfig = {
-    initialRouteName: 'Weather',
+    initialRouteName: 'Home',
     drawerWidth: width / 2,
     drawerPosition: 'left',
     drawerOpenRoute: 'DrawerOpen',
