@@ -53,3 +53,27 @@ export const fetchWeather = async woeid => {
         temperature: the_temp,
     };
 };
+export const fetDataCourse = async () => {
+    try {
+        const respone = await fetch('http://5b90d0643ef10a001445d0ea.mockapi.io/api/course');
+        const data = await respone.json();
+        return data;
+    } catch (e) {
+        console.log(e)
+    }
+};
+export const postDataCourse = async (params) =>{
+  try {
+      const respone = await fetch('http://5b90d0643ef10a001445d0ea.mockapi.io/api/course',{
+            method: 'POST',
+            headers: {
+                'Accept' : 'application/json',
+                'Content-Type' :'application/json'
+            },
+          body:JSON.stringify(params)
+      });
+      let data = await respone.json()
+  }catch (e) {
+      console.log(e)
+  }
+};

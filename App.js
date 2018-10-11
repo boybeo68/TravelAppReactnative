@@ -20,6 +20,8 @@ const AppNavigation = createStackNavigator({
             header: null
         }
     },
+},{
+    initialRouteName:'HomeScreen'
 });
 export default class App extends React.Component {
     render() {

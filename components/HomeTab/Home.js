@@ -1,12 +1,22 @@
 import React, {Component} from 'react';
-import {Icon} from 'native-base'
-import { AppRegistry, FlatList, StyleSheet, Text, View, Image, Alert, Platform, TouchableHighlight, RefreshControl } from 'react-native';
+import {
+    FlatList,
+    StyleSheet,
+    Text,
+    View,
+    Image,
+    Alert,
+    Platform,
+    ActivityIndicator,
+    TouchableHighlight,
+    RefreshControl
+} from 'react-native';
+import {SwipeRow, Icon, Button, Container, Content, Fab, Header, Left, Right, Body} from 'native-base'
 import HeaderComponent from '../HeaderComponent'
-import * as firebase from "firebase";
 import AddModal from '../AddModal';
-import Swipeout from 'react-native-swipeout';
-import flatListData from '../../data/flatListData';
-// import styles from './styles';
+import {fetDataCourse,postDataCourse} from '../../utils/api'
+import { Constants } from 'expo';
+
 const backgroundColor = '#0067a7';
 
 class FlatListItem extends Component {
@@ -16,107 +26,98 @@ class FlatListItem extends Component {
             activeRowKey: null
         };
     }
-    render() {
-        const swipeSettings = {
-            autoClose: true,
-            onClose: (secId, rowId, direction) => {
-                if(this.state.activeRowKey != null) {
-                    this.setState({ activeRowKey: null });
-                }
-            },
-            onOpen: (secId, rowId, direction) => {
-                this.setState({ activeRowKey: this.props.item.key });
-            },
-            right: [
-                {
-                    onPress: () => {
-                        const deletingRow = this.state.activeRowKey;
-                        Alert.alert(
-                            'Alert',
-                            'Are you sure you want to delete ?',
-                            [
-                                {text: 'No', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-                                {text: 'Yes', onPress: () => {
-                                        flatListData.splice(this.props.index, 1);
-                                        //Refresh FlatList !
-                                        this.props.parentFlatList.refreshFlatList(deletingRow);
-                                    }},
-                            ],
-                            { cancelable: true }
-                        );
-                    },
-                    text: 'Delete', type: 'delete'
-                }
-            ],
-            rowId: this.props.index,
-            sectionId: 1
-        };
-        return (
-            <Swipeout {...swipeSettings}>
-                <View style={{
-                    flex: 1,
-                    flexDirection:'column',
-                }}>
-                    <View style={{
-                        flex: 1,
-                        flexDirection:'row',
-                        // backgroundColor: this.props.index % 2 == 0 ? 'mediumseagreen': 'tomato'
-                        backgroundColor: 'rgb(32, 53, 70)'
-                    }}>
-                        <Image
-                            source={{uri: this.props.item.imageUrl}}
-                            style={{width: 100, height: 100, margin: 5}}
-                        >
 
-                        </Image>
+    render() {
+        return (
+            <SwipeRow
+                rightOpenValue={-75}
+                body={
                         <View style={{
                             flex: 1,
-                            flexDirection:'column',
-                            height: 100
+                            flexDirection: 'row',
+                            backgroundColor: 'rgb(32, 53, 70)',
+                            marginLeft: 10
                         }}>
-                            <Text style={styles.flatListItem}>{this.props.item.name}</Text>
-                            <Text style={styles.flatListItem}>{this.props.item.foodDescription}</Text>
-                        </View>
-                    </View>
-                    <View style={{
-                        height: 1,
-                        backgroundColor:'white'
-                    }}>
+                            <Image
+                                source={{uri: this.props.item.avata}}
+                                style={{width: 100, height: 100, margin: 5}}
+                            >
 
+                            </Image>
+                            <View style={{
+                                flex: 1,
+                                flexDirection: 'column',
+                                height: 100
+                            }}>
+                                <Text style={styles.flatListItem}>{this.props.item.name}</Text>
+                                <Text style={styles.flatListItem}>{this.props.item.decription}</Text>
+                            </View>
+                        </View>
+                }
+                right={
+                    <View style={{height: 50, justifyContent: 'center', flex: 1, alignItems: 'center'}}>
+                        <Button style={{marginBottom: 5}} small rounded danger onPress={() => {
+                        }}>
+                            <Icon active name="trash"/>
+                        </Button>
+                        <Button small rounded primary
+                                onPress={() => {
+                                }}>
+                            <Icon active name="ios-build-outline"/>
+                        </Button>
                     </View>
-                </View>
-            </Swipeout>
+                }
+            />
 
         );
     }
 }
+
 const styles = StyleSheet.create({
     flatListItem: {
         color: 'white',
         padding: 10,
         fontSize: 16,
-    }
+    },
+    textSmall: {
+        fontSize: 18,
+    },
+    textStyle: {
+        fontFamily: Platform.OS === 'ios' ? 'AvenirNext-Regular' : 'Roboto',
+        color: 'white'
+    },
+    statusBar: {
+        backgroundColor: "#0067a7",
+        height: Constants.statusBarHeight,
+    },
 });
 export default class Home extends Component {
     constructor(props) {
         super(props);
         this.state = ({
             deletedRowKey: null,
+            dataCourse: [],
+            loading: false,
+            error: false,
+            active: false
         });
         this._onPressAdd = this._onPressAdd.bind(this);
     }
-    refreshFlatList = (activeKey) => {
+
+    refreshFlatList = () => {
         this.setState((prevState) => {
             return {
-                deletedRowKey: activeKey
+                deletedRowKey: (prevState * 3.12)
             };
         });
         this.refs.flatList.scrollToEnd();
-    }
-    _onPressAdd () {
+    };
+
+    _onPressAdd() {
         // alert("You add Item");
         this.refs.addModal.showAddModal();
     }
+
     static navigationOptions = ({navigation}) => {
         let drawerLabel = 'Home';
         let drawerIcon = () => (
@@ -126,53 +127,82 @@ export default class Home extends Component {
     };
 
     componentDidMount() {
-
+        this.setState({loading: true}, async () => {
+            try {
+                const dataCourse = await fetDataCourse();
+                this.setState({
+                    dataCourse: dataCourse,
+                    loading: false,
+                    error: false
+                })
+            } catch (e) {
+                console.log('không lấy được dữ liệu ');
+                this.setState({loading: false, error: true})
+            }
+        })
     }
 
     render() {
-
+        const {loading, error, dataCourse} = this.state;
         return (
-            <View style={{
+            <Container style={{
                 flex: 1,
                 flexDirection: 'column',
             }}>
-                <HeaderComponent {...this.props} />
-                <View style={{flex: 1, marginTop: Platform.OS === 'ios' ? 34 : 0}}>
-                    <View style={{
-                        backgroundColor: 'rgb(32, 53, 70)',
-                        flexDirection: 'row',
-                        justifyContent:'flex-end',
-                        alignItems: 'center',
-                        height: 64}}>
-                        <TouchableHighlight
-                            style={{marginRight: 10}}
-                            underlayColor='tomato'
-                            onPress={this._onPressAdd}
-                        >
-                            <Image
-                                style={{width: 35, height: 35}}
-                                source={require('../../icons/icons-add.png')}
-                            />
-                        </TouchableHighlight>
-                    </View>
-                    <FlatList
-                        ref={"flatList"}
-                        data={flatListData}
-                        renderItem={({item, index})=>{
-                            //console.log(`Item = ${JSON.stringify(item)}, index = ${index}`);
-                            return (
-                                <FlatListItem item={item} index={index} parentFlatList={this}>
-
-                                </FlatListItem>);
-                        }}
-                    >
-
-                    </FlatList>
-                    <AddModal ref={'addModal'} parentFlatList={this} >
-
-                    </AddModal>
+                <View>
+                    <View style={styles.statusBar} />
+                    {/* rest of the content */}
                 </View>
-            </View>
+                <Header translucent>
+                    <Left>
+                        <Icon name='ios-menu' style={{color:'#fff'}} onPress={()=>{
+                            this.props.navigation.openDrawer();
+                        }}/>
+                    </Left>
+                    <Right/>
+                </Header>
+                {loading ? ( <ActivityIndicator animating={loading} color='black' size='large'/>) : null}
+                {!loading && (
+                    <View>
+                        {error && (
+                            <Text style={[styles.textSmall, styles.textStyle]}>
+                                Could not load data, please try a different city.
+                            </Text>
+                        )}
+                        {!error && (
+                            <FlatList
+                                ref={"flatList"}
+                                data={dataCourse}
+                                renderItem={({item, index}) => {
+                                    //console.log(`Item = ${JSON.stringify(item)}, index = ${index}`);
+                                    return (
+                                        <FlatListItem style={{borderBottomWidth: 0}} item={item} index={index} parentFlatList={this}>
+                                        </FlatListItem>);
+                                }}
+                                keyExtractor={item => item.id.toString()}
+                            >
+
+                            </FlatList>
+                        )}
+                    </View>
+                )}
+
+                <AddModal ref={(addModal) => {
+                    this.addModal=addModal;
+                }} parentFlatList={this}>
+                </AddModal>
+                <Fab
+                    active={this.state.active}
+                    direction="up"
+                    containerStyle={{}}
+                    style={{backgroundColor: '#5067FF'}}
+                    position="bottomRight"
+                    onPress={() => {
+                        this.addModal.showAddModal();
+                    }}>
+                    <Icon name="md-add"/>
+                </Fab>
+            </Container>
         );
     }
 }

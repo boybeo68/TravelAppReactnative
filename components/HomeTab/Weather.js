@@ -82,15 +82,6 @@ export default class Weather extends Component {
         if (!city) return;
         this.setState({loading: true}, async () => {
             try {
-                // const locationId = await fetchLocationId(city);
-                // const {location, weather, temperature} = await fetchWeather(locationId);
-                // this.setState({
-                //     location,
-                //     weather,
-                //     temperature,
-                //     loading: false,
-                //     error: false
-                // })
                 const dataWeather = await fetWeatherAddress(city);
                 console.log(dataWeather);
                 this.setState({

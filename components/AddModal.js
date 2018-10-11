@@ -1,13 +1,11 @@
 import React, { Component } from 'react';
-import {
-    AppRegistry, FlatList, StyleSheet, Text, View, Image, Alert,
-    Platform, TouchableHighlight, Dimensions,
+import {Text,
+    Platform, Dimensions,
     TextInput
 } from 'react-native';
 import Modal from 'react-native-modalbox';
 import Button from 'react-native-button';
-import flatListData from '../data/flatListData';
-
+import {postDataCourse} from '../utils/api'
 var screen = Dimensions.get('window');
 export default class AddModal extends Component {
     constructor(props) {
@@ -18,15 +16,17 @@ export default class AddModal extends Component {
         };
     }
     showAddModal = () => {
-        this.refs.myModal.open();
+        this.myModal.open();
     };
     generateKey = (numberOfCharacters) => {
-        return require('random-string')({length: numberOfCharacters});        
+        return require('random-string')({length: numberOfCharacters});
     };
     render() {
         return (
             <Modal
-                ref={"myModal"}
+                ref={(myModal)=>{
+                    this.myModal = myModal;
+                }}
                 style={{
                     justifyContent: 'center',
                     borderRadius: Platform.OS === 'ios' ? 30 : 20,
@@ -87,20 +87,21 @@ export default class AddModal extends Component {
                         backgroundColor: 'mediumseagreen'
                     }}
                     onPress={() => {
-                         if (this.state.newFoodName.length == 0 || this.state.newFoodDescription.length == 0) {
+                         if (this.state.newFoodName.length === 0 || this.state.newFoodDescription.length === 0) {
                             alert("You must enter food's name and description");
                             return;
-                        }       
-                        const newKey = this.generateKey(24);
+                        }
                         const newFood = {
-                            key: newKey,
                             name: this.state.newFoodName,
-                            imageUrl: "https://upload.wikimedia.org/wikipedia/commons/6/64/Foods_%28cropped%29.jpg",
+                            imageUrl: "https://picsum.photos/200/300/?random",
                             foodDescription: this.state.newFoodDescription
-                        };    
-                        flatListData.push(newFood);    
-                        this.props.parentFlatList.refreshFlatList(newKey);                                
-                        this.refs.myModal.close();                                                                       
+                        };
+
+                        postDataCourse(newFood).then(data=>{
+                            this.props.parentFlatList.refreshFlatList();
+                            this.myModal.close();
+                        }).catch(er=>console.log(er));
+
                     }}>
                     Save
                 </Button>
