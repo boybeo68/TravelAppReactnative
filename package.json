@@ -20,6 +20,7 @@
     "react-native-google-signin": "^1.0.0-rc6",
     "react-native-ignore-warnings": "^0.1.1",
     "react-native-modalbox": "^1.6.0",
+    "react-native-popup-dialog": "^0.15.1",
     "react-native-randombytes": "^3.5.1",
     "react-native-swipeout": "^2.3.6",
     "react-native-vector-icons": "^5.0.0",

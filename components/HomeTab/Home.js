@@ -14,8 +14,8 @@ import {
 import {SwipeRow, Icon, Button, Container, Content, Fab, Header, Left, Right, Body} from 'native-base'
 import HeaderComponent from '../HeaderComponent'
 import AddModal from '../AddModal';
-import {fetDataCourse,postDataCourse} from '../../utils/api'
-import { Constants } from 'expo';
+import {fetDataCourse, DeleteDataCourse} from '../../utils/api'
+import {Constants} from 'expo';
 
 const backgroundColor = '#0067a7';
 
@@ -28,40 +28,45 @@ class FlatListItem extends Component {
     }
 
     render() {
+      const  {popupModal} = this.props;
         return (
             <SwipeRow
                 rightOpenValue={-75}
                 body={
+                    <View style={{
+                        flex: 1,
+                        flexDirection: 'row',
+                        backgroundColor: 'rgb(32, 53, 70)',
+                        marginLeft: 10,
+                    }}>
+                        <Image
+                            source={{uri: this.props.item.avata}}
+                            style={{width: 100, height: 100, margin: 5}}
+                        >
+
+                        </Image>
                         <View style={{
                             flex: 1,
-                            flexDirection: 'row',
-                            backgroundColor: 'rgb(32, 53, 70)',
-                            marginLeft: 10
+                            flexDirection: 'column',
+                            height: 100
                         }}>
-                            <Image
-                                source={{uri: this.props.item.avata}}
-                                style={{width: 100, height: 100, margin: 5}}
-                            >
-
-                            </Image>
-                            <View style={{
-                                flex: 1,
-                                flexDirection: 'column',
-                                height: 100
-                            }}>
-                                <Text style={styles.flatListItem}>{this.props.item.name}</Text>
-                                <Text style={styles.flatListItem}>{this.props.item.decription}</Text>
-                            </View>
+                            <Text style={styles.flatListItem}>{this.props.item.name}</Text>
+                            <Text style={styles.flatListItem}>{this.props.item.decription}</Text>
                         </View>
+                    </View>
                 }
                 right={
                     <View style={{height: 50, justifyContent: 'center', flex: 1, alignItems: 'center'}}>
                         <Button style={{marginBottom: 5}} small rounded danger onPress={() => {
+                            DeleteDataCourse(this.props.item.id).then(data=>{
+                                this.props.parentFlatList.refreshDataFromServer();
+                            }).catch(error=> console.log(error))
                         }}>
                             <Icon active name="trash"/>
                         </Button>
                         <Button small rounded primary
                                 onPress={() => {
+                                    popupModal.EditModal(this.props.item);
                                 }}>
                             <Icon active name="ios-build-outline"/>
                         </Button>
@@ -95,7 +100,8 @@ export default class Home extends Component {
     constructor(props) {
         super(props);
         this.state = ({
-            deletedRowKey: null,
+            deletedRowKey: 0,
+            refreshing: false,
             dataCourse: [],
             loading: false,
             error: false,
@@ -110,7 +116,17 @@ export default class Home extends Component {
                 deletedRowKey: (prevState * 3.12)
             };
         });
-        this.refs.flatList.scrollToEnd();
+    };
+    refreshDataFromServer = () => {
+        this.setState({refreshing: true});
+        fetDataCourse().then(dataCourse => {
+            this.setState({dataCourse, refreshing: false})
+        }).catch(err => {
+            this.setState({dataCourse: [], refreshing: false})
+        })
+    };
+    _onRefresh = () => {
+        this.refreshDataFromServer()
     };
 
     _onPressAdd() {
@@ -119,7 +135,7 @@ export default class Home extends Component {
     }
 
     static navigationOptions = ({navigation}) => {
-        let drawerLabel = 'Home';
+        let drawerLabel = 'Learn Api';
         let drawerIcon = () => (
             <Icon name='ios-home'/>
         );
@@ -150,20 +166,20 @@ export default class Home extends Component {
                 flexDirection: 'column',
             }}>
                 <View>
-                    <View style={styles.statusBar} />
+                    <View style={styles.statusBar}/>
                     {/* rest of the content */}
                 </View>
                 <Header translucent>
                     <Left>
-                        <Icon name='ios-menu' style={{color:'#fff'}} onPress={()=>{
+                        <Icon name='ios-menu' style={{color: '#fff'}} onPress={() => {
                             this.props.navigation.openDrawer();
                         }}/>
                     </Left>
                     <Right/>
                 </Header>
-                {loading ? ( <ActivityIndicator animating={loading} color='black' size='large'/>) : null}
+                {loading ? (<ActivityIndicator animating={loading} color='black' size='large'/>) : null}
                 {!loading && (
-                    <View>
+                    <Content>
                         {error && (
                             <Text style={[styles.textSmall, styles.textStyle]}>
                                 Could not load data, please try a different city.
@@ -173,10 +189,18 @@ export default class Home extends Component {
                             <FlatList
                                 ref={"flatList"}
                                 data={dataCourse}
+
+                                refreshControl={
+                                    <RefreshControl
+                                        refreshing={this.state.refreshing}
+                                        onRefresh={this._onRefresh}
+                                    />
+                                }
                                 renderItem={({item, index}) => {
                                     //console.log(`Item = ${JSON.stringify(item)}, index = ${index}`);
                                     return (
-                                        <FlatListItem style={{borderBottomWidth: 0}} item={item} index={index} parentFlatList={this}>
+                                        <FlatListItem  popupModal={this.addModal} style={{borderBottomWidth: 0}} item={item} index={index}
+                                                      parentFlatList={this}>
                                         </FlatListItem>);
                                 }}
                                 keyExtractor={item => item.id.toString()}
@@ -184,11 +208,11 @@ export default class Home extends Component {
 
                             </FlatList>
                         )}
-                    </View>
+                    </Content>
                 )}
 
                 <AddModal ref={(addModal) => {
-                    this.addModal=addModal;
+                    this.addModal = addModal;
                 }} parentFlatList={this}>
                 </AddModal>
                 <Fab

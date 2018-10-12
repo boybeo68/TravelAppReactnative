@@ -7,9 +7,9 @@ import HeaderComponent from '../HeaderComponent'
 const backgroundColor = '#a7441f';
 export default class Setting extends Component {
     static navigationOptions = ({navigation}) => {
-        let drawerLabel = 'Home';
+        let drawerLabel = 'Todo App use redux';
         let drawerIcon = () => (
-            <Icon name='ios-settings'/>
+            <Icon name='md-done-all'/>
         );
         return {drawerLabel, drawerIcon};
     };

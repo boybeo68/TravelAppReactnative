@@ -1,30 +1,39 @@
-import React, { Component } from 'react';
-import {Text,
+import React, {Component} from 'react';
+import {
+    Text,
     Platform, Dimensions,
     TextInput
 } from 'react-native';
 import Modal from 'react-native-modalbox';
 import Button from 'react-native-button';
-import {postDataCourse} from '../utils/api'
+import {postDataCourse, putDataCourse} from '../utils/api'
+
 var screen = Dimensions.get('window');
 export default class AddModal extends Component {
     constructor(props) {
         super(props);
         this.state = {
             newFoodName: '',
-            newFoodDescription: ''
+            newFoodDescription: '',
+            id: null
         };
     }
+
     showAddModal = () => {
         this.myModal.open();
+    };
+    EditModal = (data) => {
+        this.myModal.open();
+        this.setState({newFoodName: data.name, newFoodDescription: data.decription, id: data.id})
     };
     generateKey = (numberOfCharacters) => {
         return require('random-string')({length: numberOfCharacters});
     };
+
     render() {
         return (
             <Modal
-                ref={(myModal)=>{
+                ref={(myModal) => {
                     this.myModal = myModal;
                 }}
                 style={{
@@ -57,9 +66,9 @@ export default class AddModal extends Component {
                         borderBottomWidth: 1,
                     }}
                     underlineColorAndroid={'transparent'}
-                    onChangeText={(text) => this.setState({ newFoodName: text })}
+                    onChangeText={(text) => this.setState({newFoodName: text})}
                     placeholder="Enter new food's name"
-                    value={this.state.newFoodName}                 
+                    value={this.state.newFoodName}
                 />
                 <TextInput
                     style={{
@@ -72,12 +81,12 @@ export default class AddModal extends Component {
                         borderBottomWidth: 1,
                     }}
                     underlineColorAndroid={'transparent'}
-                    onChangeText={(text) => this.setState({ newFoodDescription: text })}
+                    onChangeText={(text) => this.setState({newFoodDescription: text})}
                     placeholder="Enter new food's description"
                     value={this.state.newFoodDescription}
                 />
                 <Button
-                    style={{ fontSize: 18, color: 'white' }}
+                    style={{fontSize: 18, color: 'white'}}
                     containerStyle={{
                         padding: 8,
                         marginLeft: 70,
@@ -87,21 +96,26 @@ export default class AddModal extends Component {
                         backgroundColor: 'mediumseagreen'
                     }}
                     onPress={() => {
-                         if (this.state.newFoodName.length === 0 || this.state.newFoodDescription.length === 0) {
+                        if (this.state.newFoodName.length === 0 || this.state.newFoodDescription.length === 0) {
                             alert("You must enter food's name and description");
                             return;
                         }
                         const newFood = {
                             name: this.state.newFoodName,
                             imageUrl: "https://picsum.photos/200/300/?random",
-                            foodDescription: this.state.newFoodDescription
+                            decription: this.state.newFoodDescription
                         };
-
-                        postDataCourse(newFood).then(data=>{
-                            this.props.parentFlatList.refreshFlatList();
-                            this.myModal.close();
-                        }).catch(er=>console.log(er));
-
+                            if(this.state.id) {
+                                putDataCourse(this.state.id,newFood).then(data => {
+                                    this.props.parentFlatList.refreshDataFromServer();
+                                    this.myModal.close();
+                                }).catch(er => console.log(er))
+                            }else {
+                                postDataCourse(newFood).then(data => {
+                                    this.props.parentFlatList.refreshDataFromServer();
+                                    this.myModal.close();
+                                }).catch(er => console.log(er));
+                            }
                     }}>
                     Save
                 </Button>

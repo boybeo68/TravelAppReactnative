@@ -72,8 +72,37 @@ export const postDataCourse = async (params) =>{
             },
           body:JSON.stringify(params)
       });
-      let data = await respone.json()
+      return await respone.json()
   }catch (e) {
       console.log(e)
   }
+};
+export const putDataCourse = async (id,params) =>{
+    try {
+        const respone = await fetch(`http://5b90d0643ef10a001445d0ea.mockapi.io/api/course/${id}`,{
+            method: 'PUT',
+            headers: {
+                'Accept' : 'application/json',
+                'Content-Type' :'application/json'
+            },
+            body:JSON.stringify(params)
+        });
+        return await respone.json();
+    }catch (e) {
+        console.log(e)
+    }
+};
+export const DeleteDataCourse = async (id) =>{
+    try {
+        const respone = await fetch(`http://5b90d0643ef10a001445d0ea.mockapi.io/api/course/${id}`,{
+            method: 'DELETE',
+            headers: {
+                'Accept' : 'application/json',
+                'Content-Type' :'application/json'
+            },
+        });
+       return await respone.json()
+    }catch (e) {
+        console.log(e)
+    }
 };

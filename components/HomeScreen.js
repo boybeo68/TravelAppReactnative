@@ -1,12 +1,14 @@
 import React, {Component} from 'react';
 import {createDrawerNavigator} from 'react-navigation';
 import {View, Text, Dimensions, StatusBar} from 'react-native';
-import Info from './HomeTab/Info';
+import NotificationComponent from './HomeTab/Info';
 import Setting from './HomeTab/Setting';
 import Weather from './HomeTab/Weather';
 import Home from './HomeTab/Home'
 import AppLearnWord from './HomeTab/AppLearnWord'
 import AppCount from './HomeTab/AppCount'
+import App from './HomeTab/todoRedux/App'
+import AppInstagram from './HomeTab/InstagramUI/App'
 
 // import styles from './styles';
 var {height, width} = Dimensions.get('window');
@@ -23,12 +25,15 @@ let routeConfigs = {
     AppCount: {
         screen: AppCount,
     },
-    Info: {
-        screen: Info,
+    NotificationComponent: {
+        screen: NotificationComponent,
     },
-    Settings: {
-        screen: Setting,
+    'Todo Redux': {
+        screen: App,
     },
+    AppInstagram:{
+        screen:AppInstagram,
+    }
 };
 let drawerNavigatorConfig = {
     initialRouteName: 'Home',
