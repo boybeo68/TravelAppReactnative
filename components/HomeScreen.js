@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {createDrawerNavigator} from 'react-navigation';
 import {View, Text, Dimensions, StatusBar} from 'react-native';
 import NotificationComponent from './HomeTab/Info';
-import Setting from './HomeTab/Setting';
+import Camera_and_Info from './HomeTab/Camera_and_Info';
 import Weather from './HomeTab/Weather';
 import Home from './HomeTab/Home'
 import AppLearnWord from './HomeTab/AppLearnWord'
@@ -33,7 +33,11 @@ let routeConfigs = {
     },
     AppInstagram:{
         screen:AppInstagram,
+    },
+    Camera_and_Info:{
+        screen:Camera_and_Info
     }
+
 };
 let drawerNavigatorConfig = {
     initialRouteName: 'Home',
