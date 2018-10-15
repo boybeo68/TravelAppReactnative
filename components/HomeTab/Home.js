@@ -5,14 +5,11 @@ import {
     Text,
     View,
     Image,
-    Alert,
     Platform,
     ActivityIndicator,
-    TouchableHighlight,
     RefreshControl
 } from 'react-native';
 import {SwipeRow, Icon, Button, Container, Content, Fab, Header, Left, Right, Body} from 'native-base'
-import HeaderComponent from '../HeaderComponent'
 import AddModal from '../AddModal';
 import {fetDataCourse, DeleteDataCourse} from '../../utils/api'
 import {Constants} from 'expo';
@@ -107,16 +104,8 @@ export default class Home extends Component {
             error: false,
             active: false
         });
-        this._onPressAdd = this._onPressAdd.bind(this);
     }
 
-    refreshFlatList = () => {
-        this.setState((prevState) => {
-            return {
-                deletedRowKey: (prevState * 3.12)
-            };
-        });
-    };
     refreshDataFromServer = () => {
         this.setState({refreshing: true});
         fetDataCourse().then(dataCourse => {
@@ -129,10 +118,6 @@ export default class Home extends Component {
         this.refreshDataFromServer()
     };
 
-    _onPressAdd() {
-        // alert("You add Item");
-        this.refs.addModal.showAddModal();
-    }
 
     static navigationOptions = ({navigation}) => {
         let drawerLabel = 'Learn Api';
@@ -182,7 +167,7 @@ export default class Home extends Component {
                     <Content>
                         {error && (
                             <Text style={[styles.textSmall, styles.textStyle]}>
-                                Could not load data, please try a different city.
+                                Could not load data,
                             </Text>
                         )}
                         {!error && (
@@ -197,7 +182,6 @@ export default class Home extends Component {
                                     />
                                 }
                                 renderItem={({item, index}) => {
-                                    //console.log(`Item = ${JSON.stringify(item)}, index = ${index}`);
                                     return (
                                         <FlatListItem  popupModal={this.addModal} style={{borderBottomWidth: 0}} item={item} index={index}
                                                       parentFlatList={this}>

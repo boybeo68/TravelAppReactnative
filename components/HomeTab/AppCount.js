@@ -5,16 +5,16 @@ import {createStore} from 'redux'
 import {Provider} from 'react-redux'
 import Main from './couterTime/Main'
 import {Icon} from "native-base";
-
-const defaultValue = {value: 19, hightLight: false};
-const reducer = (state= defaultValue, action ) => {
-    if (action.type === 'UP') return {value: state.value + 1, hightLight: state.hightLight};
-    if (action.type === 'DOWN') return {value: state.value - 1, hightLight: state.hightLight};
-    if (action.type === 'ChangeColor') return {value:state.value, hightLight: !state.hightLight};
-    return state;
-};
-const store = createStore(reducer);
-
+import store from './couterTime/redux/store'
+import {sagamiddleWare} from './couterTime/redux/store'
+import rootSaga from './couterTime/redux/sagas/rootSaga'
+// const defaultValue = {value: 19, hightLight: false};
+// const reducer = (state= defaultValue, action ) => {
+//     if (action.type === 'UP') return {value: state.value + 1, hightLight: state.hightLight};
+//     if (action.type === 'DOWN') return {value: state.value - 1, hightLight: state.hightLight};
+//     if (action.type === 'ChangeColor') return {value:state.value, hightLight: !state.hightLight};
+//     return state;
+// };
 export default class AppCount extends React.Component {
     static navigationOptions = ({navigation}) => {
         let drawerLabel = 'App Count';
@@ -32,4 +32,5 @@ export default class AppCount extends React.Component {
         );
     }
 }
+sagamiddleWare.run(rootSaga);
 

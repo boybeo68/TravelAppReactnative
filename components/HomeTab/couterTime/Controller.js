@@ -2,24 +2,22 @@ import React, { Component } from 'react';
 
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {connect} from 'react-redux'
+import {onDecrement,onIncrement} from './redux/actions/creatorAction'
 
 // import styles from './styles';
 
  class Controller extends Component {
-    _onDown(){
-        this.props.dispatch({type: 'DOWN'})
-    }
   render() {
     return (
         <View style={styleController.controller}>
             <Text style={styleController.controllName}>CONTROLLER COMPONENT</Text>
             <View style={styleController.buttonContainer}>
                 <TouchableOpacity style={styleController.button} onPress={() => {
-                    this.props.dispatch({type:'UP'})
+                   this.props.onIncrement(1)
                 }}>
                     <Text style={styleController.buttonText}>+</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styleController.button} onPress={()=>{this._onDown()}}>
+                <TouchableOpacity style={styleController.button} onPress={()=>{this.props.onDecrement(2)}}>
                     <Text style={styleController.buttonText}>-</Text>
                 </TouchableOpacity>
             </View>
@@ -27,7 +25,7 @@ import {connect} from 'react-redux'
     );
   }
 }
-export default connect()(Controller)
+export default connect(null,{onDecrement,onIncrement})(Controller)
 
 const styleController = StyleSheet.create({
     controller: {

@@ -29,7 +29,7 @@ class TodoItem extends Component {
         this._storeData(this.props.defaultTodoList)
     };
     showEditModal = (popupDialogComponent,id,name) => {
-        // todo sử dụng refs với redux
+        // todo sử dụng refs với reducers
         popupDialogComponent.getWrappedInstance().editDialogComponent(id,name);
     };
     _storeData = async (todos) => {

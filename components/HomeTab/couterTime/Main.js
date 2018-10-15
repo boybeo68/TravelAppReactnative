@@ -4,6 +4,7 @@ import {StyleSheet, Text, View} from 'react-native';
 import Controller from './Controller';
 import {connect} from 'react-redux'
 import HeaderComponent from "../../HeaderComponent";
+import valueReducer from "./redux/reducers/ValueReducer";
 
 // import styles from './styles';
 
@@ -27,7 +28,7 @@ import HeaderComponent from "../../HeaderComponent";
   }
 }
 function mapStateToProps(state) {
-    return {myValue: state.value}
+    return {myValue: state.valueReducer}
 }
 
  export default connect(mapStateToProps)(Main)

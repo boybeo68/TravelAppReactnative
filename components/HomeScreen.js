@@ -40,7 +40,7 @@ let routeConfigs = {
 
 };
 let drawerNavigatorConfig = {
-    initialRouteName: 'Home',
+    initialRouteName: 'AppCount',
     drawerWidth: width / 2,
     drawerPosition: 'left',
     drawerOpenRoute: 'DrawerOpen',
