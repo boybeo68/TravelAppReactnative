@@ -7,9 +7,11 @@ import {
 import Modal from 'react-native-modalbox';
 import Button from 'react-native-button';
 import {postDataCourse, putDataCourse} from '../utils/api'
+import {connect} from 'react-redux'
+import {onAddCourse,onEditCourse} from './HomeTab/leanApi/actions/actionCreator'
 
-var screen = Dimensions.get('window');
-export default class AddModal extends Component {
+const screen = Dimensions.get('window');
+ class AddModal extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -25,9 +27,6 @@ export default class AddModal extends Component {
     EditModal = (data) => {
         this.myModal.open();
         this.setState({newFoodName: data.name, newFoodDescription: data.decription, id: data.id})
-    };
-    generateKey = (numberOfCharacters) => {
-        return require('random-string')({length: numberOfCharacters});
     };
 
     render() {
@@ -106,15 +105,13 @@ export default class AddModal extends Component {
                             decription: this.state.newFoodDescription
                         };
                             if(this.state.id) {
-                                putDataCourse(this.state.id,newFood).then(data => {
-                                    this.props.parentFlatList.refreshDataFromServer();
-                                    this.myModal.close();
-                                }).catch(er => console.log(er))
+                                this.props.onEditCourse(this.state.id,newFood);
+                                this.setState({ newFoodName: '',
+                                    newFoodDescription: '',});
+                                this.myModal.close();
                             }else {
-                                postDataCourse(newFood).then(data => {
-                                    this.props.parentFlatList.refreshDataFromServer();
-                                    this.myModal.close();
-                                }).catch(er => console.log(er));
+                                this.props.onAddCourse(newFood);
+                                this.myModal.close();
                             }
                     }}>
                     Save
@@ -123,3 +120,4 @@ export default class AddModal extends Component {
         );
     }
 }
+export default connect(null,{onAddCourse,onEditCourse},null,{ withRef: true })(AddModal)

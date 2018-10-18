@@ -56,8 +56,7 @@ export const fetchWeather = async woeid => {
 export const fetDataCourse = async () => {
     try {
         const respone = await fetch('http://5b90d0643ef10a001445d0ea.mockapi.io/api/course');
-        const data = await respone.json();
-        return data;
+        return await respone.json();
     } catch (e) {
         console.log(e)
     }

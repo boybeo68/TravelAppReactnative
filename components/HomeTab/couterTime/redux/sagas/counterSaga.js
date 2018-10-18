@@ -1,7 +1,7 @@
-import { INCREMENT, DECREMENT} from '../actions/actionTypes';
+import { INCREMENT, DECREMENT, ASYNC} from '../actions/actionTypes';
 //Saga effects
 import { delay } from 'redux-saga';
-import { put, takeEvery } from 'redux-saga/effects';
+import { put, takeEvery,takeLatest } from 'redux-saga/effects';
 
 export function* sayHello() {
     console.log('Hello world !');
@@ -15,6 +15,17 @@ function* increment() {
 export function* watchIncrement() {
     console.log(`watchIncrement saga`);
     yield takeEvery(INCREMENT, increment);
+}
+
+export function* asyncincre() {
+    yield delay(3000);
+    yield put ({type:INCREMENT, step: 5});
+    yield put ({type:DECREMENT, step: 2});
+    console.log('thực hiện xong 2 phép tính')
+}
+
+export function * asyncCoun() {
+    yield takeLatest(ASYNC,asyncincre)
 }
 
 function* decrement() {

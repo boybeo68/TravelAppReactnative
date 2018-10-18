@@ -5,6 +5,7 @@ import NotificationComponent from './HomeTab/Info';
 import Camera_and_Info from './HomeTab/Camera_and_Info';
 import Weather from './HomeTab/Weather';
 import Home from './HomeTab/Home'
+import AppHome from './HomeTab/AppHome'
 import AppLearnWord from './HomeTab/AppLearnWord'
 import AppCount from './HomeTab/AppCount'
 import App from './HomeTab/todoRedux/App'
@@ -13,8 +14,8 @@ import AppInstagram from './HomeTab/InstagramUI/App'
 // import styles from './styles';
 var {height, width} = Dimensions.get('window');
 let routeConfigs = {
-    Home: {
-        screen: Home,
+    AppHome: {
+        screen: AppHome,
     },
     Weather: {
         screen: Weather,
@@ -40,7 +41,7 @@ let routeConfigs = {
 
 };
 let drawerNavigatorConfig = {
-    initialRouteName: 'AppCount',
+    initialRouteName: 'AppHome',
     drawerWidth: width / 2,
     drawerPosition: 'left',
     drawerOpenRoute: 'DrawerOpen',

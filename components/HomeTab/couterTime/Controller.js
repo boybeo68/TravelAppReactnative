@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {connect} from 'react-redux'
-import {onDecrement,onIncrement} from './redux/actions/creatorAction'
+import {onDecrement,onIncrement,onAsync} from './redux/actions/creatorAction'
 
 // import styles from './styles';
 
@@ -20,12 +20,15 @@ import {onDecrement,onIncrement} from './redux/actions/creatorAction'
                 <TouchableOpacity style={styleController.button} onPress={()=>{this.props.onDecrement(2)}}>
                     <Text style={styleController.buttonText}>-</Text>
                 </TouchableOpacity>
+                <TouchableOpacity style={styleController.button} onPress={()=>{this.props.onAsync()}}>
+                    <Text style={styleController.buttonText}>async</Text>
+                </TouchableOpacity>
             </View>
         </View>
     );
   }
 }
-export default connect(null,{onDecrement,onIncrement})(Controller)
+export default connect(null,{onDecrement,onIncrement,onAsync})(Controller)
 
 const styleController = StyleSheet.create({
     controller: {
@@ -46,13 +49,13 @@ const styleController = StyleSheet.create({
     },
     button: {
         backgroundColor: 'black',
-        paddingHorizontal: 50,
-        paddingVertical: 25,
+        paddingHorizontal: 30,
+        paddingVertical: 15,
         margin: 10,
         borderRadius: 5
     },
     buttonText: {
         color: 'white',
-        fontSize: 40
+        fontSize: 20
     }
 });
